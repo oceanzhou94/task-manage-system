@@ -2,11 +2,20 @@
 @Auth ： youngZ
 @File ：main.py
 """
+from fastapi import FastAPI
+import uvicorn
+
+app = FastAPI()
 
 
-def main():
-    print("hello ")
+@app.get("/")
+async def main():
+    return {
+        "code": 200,
+        "message": "请求成功",
+        "data": "null",
+    }
 
 
 if __name__ == '__main__':
-    main()
+    uvicorn.run(app, host="127.0.0.1", port=8000)
