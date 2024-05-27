@@ -3,18 +3,13 @@
 @File ：user.py
 """
 
-from tortoise.models import Model
 from tortoise import fields
 from enum import Enum
+from tortoise.models import Model
 
 
-class GenderEnum(Enum):
-    MALE = "男"
-    FEMALE = "女"
-    SECRET = "保密"
-
-
-class DateTimeModel(Model):
+class BaseModel(Model):
+    """基础模型，添加创建时间和更新时间"""
     created_time = fields.DatetimeField(auto_now_add=True, description="创建时间")
     updated_time = fields.DatetimeField(auto_now=True, description="更新时间")
 
@@ -22,7 +17,14 @@ class DateTimeModel(Model):
         abstract = True  # 抽象模型，将不会在数据库中创建表
 
 
-class User(DateTimeModel):
+class GenderEnum(Enum):
+    """性别枚举类"""
+    MALE = "男"
+    FEMALE = "女"
+    SECRET = "保密"
+
+
+class User(BaseModel):
     id = fields.IntField(pk=True, generated=True, description="唯一标识")
     username = fields.CharField(max_length=50, null=False, description="用户名")
     password = fields.CharField(max_length=50, null=False, description="用户密码")
