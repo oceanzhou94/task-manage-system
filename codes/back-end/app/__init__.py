@@ -6,13 +6,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from tortoise.contrib.fastapi import register_tortoise
 from core import TITLE, DESCRIPTIONS, TORTOISE_ORM
-from .api import task
+from .v1 import v1
 
 # 创建APP
 app = FastAPI(title=TITLE, description=DESCRIPTIONS)
 
 # 路由注册
-app.include_router(task, prefix="/task")
+app.include_router(v1)
 
 # 跨域
 app.add_middleware(

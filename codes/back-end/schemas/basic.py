@@ -16,7 +16,7 @@ class CodeEnum(int, Enum):
 
 
 class ResponseSuccess(BaseModel):
-    code: CodeEnum = CodeEnum.FAILED
+    code: CodeEnum = CodeEnum.SUCCESS
     message: str = "请求成功"
     data: Any = None
 
