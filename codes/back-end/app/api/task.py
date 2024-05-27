@@ -3,25 +3,34 @@
 @File ：task.py
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Form
 from models.task import Task
+from schemas import TaskPydantic, TaskInPydantic, ResponseSuccess, ResponseFailed
 
 task = APIRouter(tags=["任务模块"])
 
 
-@task.get("/list")  # 路径host:port/task/list
-async def task_index():
+@task.get("/list", summary="任务列表")  # 路径host:port/task/list
+async def get_task_list(limit: int = 10, page: int = 1):
+    skip = (page - 1) * limit
     try:
-        data = await Task.all()
+        data = {
+            "total": await Task.all().count(),
+            "movies": await TaskPydantic.from_queryset(Task.all().offset(skip).limit(limit).order_by('-id'))
+        }
     except Exception as error:
-        return {
-            "code": 400,
-            "message": "query failed",
-            "data": None
-        }
+        return ResponseFailed(data=error, message="查询失败")
     else:
-        return {
-            "code": 200,
-            "message": "query success",
-            "data": data
-        }
+        return ResponseSuccess(data=data, message="查询成功")
+
+
+@task.post("/create", summary="新增任务")  # 路径host:port/task/create
+async def create_task(task_form: TaskInPydantic):
+    try:
+        data = await TaskInPydantic.from_tortoise_orm(
+            await Task.create(**task_form.dict())
+        )
+    except Exception as error:
+        return ResponseFailed(data=error, message="新增失败")
+    else:
+        return ResponseSuccess(data=data, message="新增成功")
