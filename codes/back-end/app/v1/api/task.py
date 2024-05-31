@@ -2,10 +2,11 @@
 @Auth ： youngZ
 @File ：task.py
 """
-
-from fastapi import APIRouter, Form
-from models.task import Task
-from schemas import TaskPydantic, TaskInPydantic, ResponseSuccess, ResponseFailed
+from typing import Any
+from core import deps
+from fastapi import APIRouter, Depends
+from models import User, Task
+from scheams import TaskPydantic, TaskInPydantic, ResponseSuccess, ResponseFailed
 
 task = APIRouter(tags=["任务模块"], prefix="/task")
 
@@ -16,7 +17,7 @@ async def get_task_list(limit: int = 10, page: int = 1):
     try:
         data = {
             "total": await Task.all().count(),
-            "tasks": await TaskPydantic.from_queryset(Task.all().offset(skip).limit(limit).order_by('id'))
+            "tasks": await TaskPydantic.from_queryset(Task.all().select_related("publisher").offset(skip).limit(limit).order_by('id'))
         }
     except Exception as error:
         return ResponseFailed(data=error, message="查询失败")
@@ -34,14 +35,14 @@ async def get_task_by_id(id: int):
         return ResponseSuccess(data=data, message="查询成功")
 
 
-@task.post("/create", summary="新增任务")  # 路径host:port/tms/task/create
-async def create_task(task_form: TaskInPydantic):
+@task.post("/create", summary="新增任务", )  # 路径host:port/tms/task/create
+async def create_task(task_form: TaskInPydantic, user: User = Depends(deps.get_current_user)):
     try:
         data = await TaskInPydantic.from_tortoise_orm(
-            await Task.create(**task_form.dict())
+            await Task.create(**task_form.dict(), publisher=user)
         )
     except Exception as error:
-        return ResponseFailed(data=error, message="新增失败")
+        return ResponseFailed(data=str(error), message="新增失败")
     else:
         return ResponseSuccess(data=data, message="新增成功")
 
