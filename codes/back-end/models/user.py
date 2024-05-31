@@ -31,6 +31,6 @@ class User(BaseModel):
     gender = fields.CharEnumField(enum_type=GenderEnum, description="性别")
     telephone = fields.CharField(max_length=20, null=True, description="手机号")
 
-    class Meat:
+    class Meta:
         table = "tms_user"
         table_description = "用户信息表"
