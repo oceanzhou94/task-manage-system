@@ -481,4 +481,7 @@ export default {
 </script>
 
 <style>
+.el-button {
+  width: auto; /* 恢复按钮默认宽度 */
+}
 </style>
