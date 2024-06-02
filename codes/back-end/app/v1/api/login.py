@@ -26,20 +26,17 @@ async def user_login(request: Request, form_data: OAuth2PasswordRequestForm = De
         user = await User.get(username=form_data.username)
     except tortoise.exceptions.DoesNotExist:
         return ResponseFailed(message="用户名不存在", data={"username": form_data.username})
-    if not user or not verify_password(form_data.password, user.password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="用户名或密码错误",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+
+    if not verify_password(form_data.password, user.password):
+        return ResponseFailed(message="用户密码错误", data={"username": form_data.username})
 
     token = create_access_token({"sub": user.username})
     return ResponseSuccess(
         message="登录成功",
         data={
+            "username": user.username,
             "token": f"bearer {token}",
             "access_token":token,
-            "username": user.username
         }
     )
 
