@@ -34,18 +34,13 @@ async def user_login(request: Request, form_data: OAuth2PasswordRequestForm = De
         )
 
     token = create_access_token({"sub": user.username})
-    return ResponseToken(
+    return ResponseSuccess(
         message="登录成功",
         data={
             "token": f"bearer {token}",
-            "user": {
-                "id": user.id,
-                "username": user.username,
-                "gender": user.gender,
-                "telephone": user.telephone,
-            }
-        },
-        access_token=token
+            "access_token":token,
+            "username": user.username
+        }
     )
 
 
