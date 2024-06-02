@@ -41,15 +41,16 @@ async def user_login(request: Request, form_data: OAuth2PasswordRequestForm = De
     )
 
 
-@login.put("/logout", summary="用户注销")  # 路径host:port/tms/logout
+@login.put("/logout", summary="退出登录")  # 路径host:port/tms/logout
 async def user_logout(request: Request, user: User = Depends(deps.get_current_user)):
     request.app.state.redis.delete(user.username)
-    return ResponseSuccess(message="注销成功", data=user)
+    return ResponseSuccess(message="退出成功", data=user)
 
 
 @login.post("/register", summary="用户注册")  # 路径host:port/tms/register
 async def user_create(user: UserInPydantic):
-    if await User.filter(username=user.username):
-        return ResponseFailed(message="用户名已存在")
+    is_exist = await User.filter(username=user.username)
+    if is_exist:
+        return ResponseFailed(message="用户名已存在",data={"username":user.username})
     user = await UserPydantic.from_tortoise_orm(await User.create(**user.dict()))
     return ResponseSuccess(message="注册成功", data=user)
