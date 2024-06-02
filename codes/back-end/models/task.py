@@ -24,6 +24,6 @@ class Task(BaseModel):
     price = fields.FloatField(null=False)
     publisher = fields.ForeignKeyField(model_name="models.User")  # 外键
 
-    class Meat:
+    class Meta:
         table = "tms_task"
         table_description = "任务信息表"

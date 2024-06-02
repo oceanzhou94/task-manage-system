@@ -2,10 +2,13 @@
 @Auth ： youngZ
 @File ：user.py
 """
+from typing import Optional, Iterable
 
-from tortoise import fields
+from tortoise import fields, BaseDBAsyncClient
 from enum import Enum
 from tortoise.models import Model
+
+from core import get_password_hash
 
 
 class BaseModel(Model):
@@ -27,10 +30,23 @@ class GenderEnum(Enum):
 class User(BaseModel):
     id = fields.IntField(pk=True, generated=True, description="唯一标识")
     username = fields.CharField(max_length=50, null=False, description="用户名")
-    password = fields.CharField(max_length=50, null=False, description="用户密码")
+    password = fields.CharField(max_length=200, null=False, description="用户密码")
+    nickname = fields.CharField(max_length=500,null=False,description="用户昵称")
     gender = fields.CharEnumField(enum_type=GenderEnum, description="性别")
     telephone = fields.CharField(max_length=20, null=True, description="手机号")
 
-    class Meat:
+    class Meta:
         table = "tms_user"
         table_description = "用户信息表"
+
+    async def save(
+            self,
+            using_db: Optional[BaseDBAsyncClient] = None,
+            update_fields: Optional[Iterable[str]] = None,
+            force_create: bool = False,
+            force_update: bool = False,
+    ) -> None:
+        if force_create or "password" in update_fields:
+            self.password = get_password_hash(self.password)
+
+        await super(User, self).save(using_db, update_fields, force_create, force_update)
