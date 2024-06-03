@@ -4,5 +4,5 @@
 """
 
 from .task import TaskPydantic, TaskInPydantic
-from .user import UserPydantic, UserInPydantic
+from .user import UserPydantic, UserInPydantic, UserUpdatePydantic
 from .basic import ResponseSuccess, ResponseFailed, ResponseToken

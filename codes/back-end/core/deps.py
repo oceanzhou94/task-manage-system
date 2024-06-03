@@ -21,7 +21,7 @@ async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)
     """
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
+        detail="用户未登录",
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
