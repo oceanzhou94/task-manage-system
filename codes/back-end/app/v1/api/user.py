@@ -34,7 +34,7 @@ async def user_update(user_form: UserUpdatePydantic, user_obj: User = Depends(de
     修改当前用户信息
     """
     old_user = await UserPydantic.from_queryset(User.filter(username=user_obj.username))
-    await User.filter(username=user_obj.username).update(**user_form.dict())
+    await User.filter(username=user_obj.id).update(**user_form.dict())
     new_user = await UserPydantic.from_queryset(User.filter(username=user_form.username))
     data = {"old user": old_user, "updated user": new_user}
     return ResponseSuccess(message="修改成功", data=data)
