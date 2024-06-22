@@ -12,5 +12,5 @@ UserInPydantic = pydantic_model_creator(cls=User, name="UserIn", exclude_readonl
 UserUpdatePydantic = pydantic_model_creator(
     cls=User,
     name="UserUpdate",
-    exclude=("id", "password", "created_time", "updated_time",)
+    exclude=("id","username", "password", "created_time", "updated_time",)
 )  # 用户修改模型
