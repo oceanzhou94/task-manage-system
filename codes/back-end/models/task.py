@@ -22,7 +22,7 @@ class Task(BaseModel):
     detail = fields.TextField(null=False, description="详细描述")
     type = fields.CharField(max_length=100, description="类型")
     price = fields.FloatField(null=False)
-    publisher = fields.ForeignKeyField(model_name="models.User")  # 外键
+    publisher = fields.ForeignKeyField(model_name="models.User",related_name="tasks")  # 外键
 
     class Meta:
         table = "tms_task"

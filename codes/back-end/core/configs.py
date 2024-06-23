@@ -16,7 +16,7 @@ TORTOISE_ORM = {
                 'host': '127.0.0.1',
                 'port': '3306',
                 'user': 'root',
-                'password': '200310',
+                'password': 'zhou123456',
                 'database': 'task_manage_system_db',
                 'minsize': 1,
                 'maxsize': 5,

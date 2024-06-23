@@ -42,9 +42,9 @@ async def user_login(form_data: OAuth2PasswordRequestForm = Depends()):
 
 
 @login.put("/logout", summary="退出登录")  # 路径host:port/tms/logout
-async def user_logout(request: Request, user: User = Depends(deps.get_current_user)):
-    request.app.state.redis.delete(user.username)
-    return ResponseSuccess(message="退出成功", data=user)
+async def user_logout(request: Request, user_obj: User = Depends(deps.get_current_user)):
+    request.app.state.redis.delete(user_obj.username)
+    return ResponseSuccess(message="退出成功", data=user_obj)
 
 
 @login.post("/register", summary="用户注册")  # 路径host:port/tms/register
