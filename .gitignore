@@ -1,0 +1,11 @@
+# Ignore node_modules directory  忽略的文件夹
+node_modules/
+
+# Ignore other common files  忽略的文件
+.DS_Store
+*.log
+dist/
+build/
+
+# Ignore environment variable files  忽略环境后缀
+.env
