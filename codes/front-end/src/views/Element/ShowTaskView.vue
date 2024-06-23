@@ -37,6 +37,67 @@
       </el-col>
     </el-row>
 
+<!--    个人信息-->
+    <!-- Table -->
+<!--    <el-button type="text" @click="()=>{dialogTableVisible = true;personClick();}">个人信息</el-button>-->
+
+<!--    <el-dialog title="个人信息" :visible.sync="dialogTableVisible">-->
+<!--      <el-table :data="gridData">-->
+<!--        <el-table-column property="id" label="id" width="150"></el-table-column>-->
+<!--        <el-table-column property="username" label="姓名" width="200"></el-table-column>-->
+<!--        <el-table-column property="nickname" label="昵称" width="200"></el-table-column>-->
+<!--        <el-table-column property="gender" label="性别" width="100"></el-table-column>-->
+<!--        <el-table-column property="telephone" label="电话" width="200"></el-table-column>-->
+<!--        <el-table-column property="created_time" label="创建时间" width="200"></el-table-column>-->
+<!--        <el-table-column property="updated_time" label="更新时间" width="200"></el-table-column>-->
+<!--      </el-table>-->
+<!--    </el-dialog>-->
+
+    <!-- 个人信息按钮 -->
+    <el-button type="text" @click="()=>{dialogTableVisible = true;personClick();}">个人信息</el-button>
+
+    <!-- 个人信息对话框 -->
+    <el-dialog title="个人信息" :visible.sync="dialogTableVisible">
+      <el-table :data="gridData">
+        <el-table-column property="id" label="id" width="150"></el-table-column>
+        <el-table-column property="username" label="姓名" width="200"></el-table-column>
+        <el-table-column property="nickname" label="昵称" width="200"></el-table-column>
+        <el-table-column property="gender" label="性别" width="100"></el-table-column>
+        <el-table-column property="telephone" label="电话" width="200"></el-table-column>
+        <el-table-column property="created_time" label="创建时间" width="200"></el-table-column>
+        <el-table-column property="updated_time" label="更新时间" width="200"></el-table-column>
+      </el-table>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogTableVisible = false">关闭</el-button>
+        <el-button type="primary" @click="openEditForm">修改信息</el-button>
+      </span>
+    </el-dialog>
+
+    <!-- 修改信息表单对话框 -->
+    <el-dialog title="修改信息" :visible.sync="editFormVisible">
+      <el-form :model="editForm">
+<!--        <el-form-item label="姓名">
+          <el-input v-model="editForm.username"></el-input>
+        </el-form-item>-->
+        <el-form-item label="昵称">
+          <el-input v-model="editForm.nickname"></el-input>
+        </el-form-item>
+        <el-form-item label="性别">
+          <el-select v-model="editForm.gender" placeholder="选择性别">
+            <el-option label="男" value="男"></el-option>
+            <el-option label="女" value="女"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="电话">
+          <el-input v-model="editForm.telephone"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="editFormVisible = false">取消</el-button>
+        <el-button type="primary" @click="submitEditForm">确定</el-button>
+      </span>
+    </el-dialog>
+
     <!-- 用户管理表格 -->
     <div v-if="isVisible">
       <el-button type="primary" @click="dialogAddUserVisible = true;">添加用户</el-button>
@@ -48,16 +109,16 @@
       </el-table-column>
       <el-table-column label="昵称" width="180">
         <template slot-scope="scope">
-          <el-popover trigger="hover" placement="top">
+            <div slot="reference" class="name-wrapper">
+              <el-tag size="medium">{{ scope.row.nickname }}</el-tag>
+            </div>
+        </template>
+      </el-table-column>
+      <el-table-column label="用户名" width="180">
+        <template slot-scope="scope">
             <div slot="reference" class="name-wrapper">
               <el-tag size="medium">{{ scope.row.username }}</el-tag>
             </div>
-          </el-popover>
-        </template>
-      </el-table-column>
-      <el-table-column label="密码" width="180">
-        <template v-slot="scope">
-          <span style="margin-left: 10px">{{ scope.row.password }}</span>
         </template>
       </el-table-column>
       <el-table-column label="性别" width="180">
@@ -67,7 +128,7 @@
       </el-table-column>
       <el-table-column label="电话" width="180">
         <template slot-scope="scope">
-          <span style="margin-left: 10px">{{ scope.row.phone }}</span>
+          <span style="margin-left: 10px">{{ scope.row.telephone }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作">
@@ -272,6 +333,34 @@ export default {
       dialogAddTaskVisible: false,
       dialogEditUserVisible: false,
       dialogEditTaskVisible: false,
+      //dialogTableVisible: false,
+      editFormVisible: false,
+      gridData: [{
+        id:'',
+        username: '',
+        nickname: '',
+        gender:'',
+        telephone:'',
+        created_time: '',
+        updated_time: ''
+      }],dialogTableVisible: false,
+      editForm: {
+        nickname: "",
+        gender: "",
+        telephone: "",
+      },
+      dialogFormVisible: false,
+      form: {
+        name: '',
+        region: '',
+        date1: '',
+        date2: '',
+        delivery: false,
+        type: [],
+        resource: '',
+        desc: ''
+      },
+      formLabelWidth: '120px',
       // isCollapse: true,
       formInline: {
         id: '',
@@ -433,15 +522,33 @@ export default {
     },
     //获取用户的全部数据
     fetchUserData() {
-      axios.get('http://localhost:8000/tms/user/list')
+      const token = sessionStorage.getItem('access_token'); // 获取 token
+
+      axios.get('http://localhost:8000/tms/user/list', {
+        headers: {
+          'Authorization': `Bearer ${token}` // 设置请求头
+        }
+      })
           .then(response => {
-            console.log('User data fetched:', response.data); // Log the response data
-            this.tableUserData = response.data.data.users; // Ensure data path is correct
+            if (response.data && response.data.code === 200) {
+              console.log('User data fetched:', response.data.data.users); // 记录响应数据
+              this.tableUserData = response.data.data.users; // 确保数据路径正确
+            } else {
+              console.error('Unexpected response structure:', response);
+            }
           })
           .catch(error => {
             console.error('Error fetching user data:', error);
+            if (error.response) {
+              if (error.response.status === 401) {
+                console.error('错误信息: 未认证');
+              } else if (error.response.data) {
+                console.error('错误信息:', error.response.data);
+              }
+            }
           });
-    },
+    }
+    ,
     // 删除用户
     deleteUser(id) {
       // 发送 HTTP DELETE 请求到服务器端删除用户
@@ -475,7 +582,139 @@ export default {
             console.error('Error deleting task:', error);
             // 处理删除失败的情况，例如显示错误信息给用户
           });
+    },
+    personClick() {
+      const token = sessionStorage.getItem('access_token'); // 获取 token
+
+      if (!token) {
+        console.error('未找到 token，请先登录。');
+        return; // 如果缺少 token，则退出函数
+      }
+
+      axios.get('http://localhost:8000/tms/user/me', {
+        headers: {
+          'Authorization': `Bearer ${token}` // 设置请求头
+        }
+      })
+          .then(response => {
+            if (response.data && response.data.code === 200) {
+              console.log('个人信息:', response.data.data);
+              this.gridData = [response.data.data]; // 处理返回数据
+            } else {
+              console.error('意外的响应结构:', response);
+            }
+          })
+          .catch(error => {
+            console.error('获取个人信息时出错:', error);
+            if (error.response) {
+              if (error.response.status === 401) {
+                console.error('错误信息: 未认证');
+              } else if (error.response.data) {
+                console.error('错误信息:', error.response.data);
+              }
+            }
+          });
+    },
+    openDialog() {
+      this.dialogTableVisible = true;
+    },
+    openEditForm() {
+      // 预填充表单数据
+      const user = this.gridData[0];
+
+      // this.editForm = { ...user };
+      this.editForm = {//取这四个属性
+        //username: user.username,
+        nickname: user.nickname,
+        gender: user.gender,
+        telephone: user.telephone,
+      };
+      this.dialogTableVisible = false;
+      this.editFormVisible = true;
+    },
+    /*async submitEditForm() {
+      const token = sessionStorage.getItem('access_token'); // 获取 token
+
+      //const { username, nickname, gender, telephone } = this.editForm; // 仅提取需要的字段
+      const {nickname, gender, telephone } = this.editForm; // 仅提取需要的字段
+      const payload = { nickname, gender, telephone };
+
+      console.log('editForm payload:', JSON.stringify(payload)); // 打印发送的数据
+      try {
+        const response = await fetch("http://localhost:8000/tms/user/update", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(this.editForm)
+        });
+        // Log the payload that is being sent to the server
+        console.log('editForm payload:', JSON.stringify(this.editForm));
+
+        const result = await response.json();
+        console.log('服务器响应:', result);
+        if (result.code === 200) {
+          this.gridData = this.gridData.map(user => {
+            if (user.id === result.data.updated_user[0].id) {
+              return { ...result.data.updated_user[0] };
+            }
+            return user;
+          });
+          this.$message.success("修改成功");
+        } else {
+          this.$message.error("修改失败");
+        }
+      } catch (error) {
+        this.$message.error("请求失败");
+      }
+      this.editFormVisible = false;
+    }*/
+    async submitEditForm() {
+      const token = sessionStorage.getItem('access_token'); // 获取 token
+
+      const { nickname, gender, telephone } = this.editForm; // 仅提取需要的字段
+      const payload = { nickname, gender, telephone };
+
+      console.log('editForm payload:', JSON.stringify(payload)); // 打印发送的数据
+      try {
+        const response = await fetch("http://localhost:8000/tms/user/update", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+        console.log('服务器响应:', result);
+
+        if (response.ok && result.code === 200) {
+          if (Array.isArray(result.data.updated_user) && result.data.updated_user.length > 0) {
+            this.gridData = this.gridData.map(user => {
+              if (user.id === result.data.updated_user[0].id) {
+                return { ...result.data.updated_user[0] };
+              }
+              return user;
+            });
+
+          }
+          console.log('显示成功消息');
+          this.$message.success("修改成功");
+        }else {
+          //console.log('显示错误消息');
+          this.$message.error(result.message || "修改失败");
+        }
+      } catch (error) {
+        console.error('请求失败:', error); // 打印详细的错误信息
+        this.$message.error("请求失败");
+      }
+      this.editFormVisible = false;
     }
+
+
+
   }
 };
 </script>
