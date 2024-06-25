@@ -5,7 +5,7 @@
 from core import deps
 from fastapi import APIRouter, Depends
 from models import User, Task
-from scheams import TaskPydantic, TaskInPydantic, TaskWithPublisherPydantic
+from scheams import TaskPydantic, TaskInPydantic
 from scheams import ResponseSuccess, ResponseFailed
 
 task = APIRouter(tags=["任务模块"], prefix="/task")
@@ -16,8 +16,7 @@ async def get_task_list(limit: int = 10, page: int = 1, user_obj: User = Depends
     skip = (page - 1) * limit
     data = {
         "total": await Task.all().count(),
-        "tasks": await TaskWithPublisherPydantic.from_queryset(
-            Task.all().prefetch_related("publisher").offset(skip).limit(limit).order_by('id'))
+        "tasks": await TaskPydantic.from_queryset(Task.all().offset(skip).limit(limit).order_by('id'))
     }
 
     return ResponseSuccess(message="查询成功", data=data)
@@ -29,7 +28,7 @@ async def get_task_by_id(id: int, user_obj: User = Depends(deps.get_current_user
     if not exist:
         return ResponseFailed(message="任务不存在", data=None)
 
-    query_task = await TaskWithPublisherPydantic.from_tortoise_orm(await Task.get(id=id).prefetch_related("publisher"))
+    query_task = await TaskPydantic.from_tortoise_orm(await Task.get(id=id))
     return ResponseSuccess(message="查询成功", data=query_task)
 
 
